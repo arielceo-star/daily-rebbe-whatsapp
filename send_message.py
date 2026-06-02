@@ -28,7 +28,7 @@ def generate_message():
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-4-7",
         max_tokens=600,
         messages=[{"role": "user", "content": f"""כתוב מסר יומי לקבוצת ווטסאפ על זוגיות מתורת הרבי מליובאוויטש.
 
