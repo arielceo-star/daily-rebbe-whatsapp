@@ -28,7 +28,7 @@ def generate_message():
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     response = client.messages.create(
-        model="claude-sonnet-4-7",
+        model="claude-sonnet-4-6",
         max_tokens=600,
         messages=[{"role": "user", "content": f"""כתוב מסר יומי לקבוצת ווטסאפ על זוגיות מתורת הרבי מליובאוויטש.
 
@@ -61,5 +61,5 @@ def send_whatsapp(message):
 
 if __name__ == "__main__":
     msg = generate_message()
-    print(f"Message:\n{msg}\n")
+    print(f"Message:\n{msg}\n".encode('utf-8', errors='replace').decode('utf-8'))
     send_whatsapp(msg)
