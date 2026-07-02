@@ -3,10 +3,19 @@ name: Daily Rebbe WhatsApp
 on:
   schedule:
     # Times are UTC. Israel is UTC+3 in summer / UTC+2 in winter.
-    - cron: '0 4 * * 0-5'   # Morning ~07:00 IL, Sunday-Friday
-    - cron: '0 17 * * 0-4'  # Evening ~20:00 IL, Sunday-Thursday
-    - cron: '0 18 * * 6'    # Motzaei Shabbat ~21:00 IL (no sends on Shabbat)
+    - cron: '0 4 * * 0-5'   # Letter, morning ~07:00 IL, Sunday-Friday
+    - cron: '0 9 * * 0-5'   # Zugiyut daily message ~12:00 IL, Sunday-Friday
+    - cron: '0 17 * * 0-4'  # Letter, evening ~20:00 IL, Sunday-Thursday
+    - cron: '0 18 * * 6'    # Zugiyut, Motzaei Shabbat ~21:00 IL ("Shavua Tov" opening)
   workflow_dispatch:
+    inputs:
+      message_type:
+        description: 'Which message to send'
+        type: choice
+        options:
+          - letter
+          - zugiyut
+        default: letter
 
 jobs:
   send:
@@ -18,10 +27,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - run: pip install requests
+      - run: pip install anthropic requests
 
       - name: Send message
         env:
+          MESSAGE_TYPE: ${{ github.event.inputs.message_type || ((github.event.schedule == '0 9 * * 0-5' || github.event.schedule == '0 18 * * 6') && 'zugiyut' || 'letter') }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GREEN_API_INSTANCE: ${{ secrets.GREEN_API_INSTANCE }}
           GREEN_API_TOKEN: ${{ secrets.GREEN_API_TOKEN }}
           GREEN_API_URL: ${{ secrets.GREEN_API_URL }}
