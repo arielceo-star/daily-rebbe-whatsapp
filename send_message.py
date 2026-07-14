@@ -1,6 +1,7 @@
 import anthropic
 import requests
 import os
+import sys
 import datetime
 
 
@@ -82,6 +83,13 @@ def send_whatsapp(message):
 
 if __name__ == "__main__":
     message_type = os.environ.get("MESSAGE_TYPE", "letter")
+    if message_type == "auto":
+        # 08:00 IL slot triggered daily by cron-job.org — zugiyut, never on Shabbat
+        # (the Motzaei Shabbat zugiyut comes via its own cron with an explicit type).
+        if datetime.datetime.now(datetime.timezone.utc).weekday() == 5:
+            print("Shabbat - skipping send")
+            sys.exit(0)
+        message_type = "zugiyut"
     if message_type == "zugiyut":
         msg = generate_zugiyut_message()
     else:
