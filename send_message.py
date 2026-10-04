@@ -12,12 +12,34 @@ REBBE_LETTER = """בעת רצון יזכירו אותך על הציון הקדו
 ותרשום תזכורת מהרבי לא ליפול לעולם לעצת היצר"""
 
 
+ZUGIYUT_TITLES = [
+    "💍 *מסר יומי לזוגיות — מאגרות הקודש של הרבי*",
+    "🏡 *לבית שלנו — מילים מהרבי*",
+    "💞 *שלום בית — מאגרות הקודש*",
+    "🕯️ *אור לבית — מכתבי הרבי על זוגיות*",
+    "🌿 *הרבי על הקשר ביניכם*",
+]
+
+ZUGIYUT_INTROS = {
+    "man": "✍️ הרבי כותב לבעל:",
+    "woman": "✍️ הרבי כותב לאישה:",
+    "couple": "✍️ הרבי כותב לזוג:",
+}
+
+ZUGIYUT_CLOSERS = {
+    "task": "✅ *משימה להיום:*",
+    "question": "🤔 *שאלה להתבוננות:*",
+    "talk": "🗣️ *לדבר על זה ביחד:*",
+}
+
+
 def build_zugiyut_message():
-    """Daily zugiyut message: a rotation of 20 letters of the Rebbe about
-    shalom bayit / marriage. The quote is verbatim from Igrot Kodesh
-    (chabadlibrary.org); each entry also carries a short plain-Hebrew
-    explanation and a small daily action, written once and fixed in
-    igrot_zugiyut.json - nothing is generated at send time."""
+    """Daily zugiyut message: a rotation of letters of the Rebbe about
+    shalom bayit / marriage, addressed to both men and women. The quote is
+    verbatim from Igrot Kodesh (chabadlibrary.org); each entry also carries
+    a short plain-Hebrew explanation and a closing (task / question / talk),
+    written once and fixed in igrot_zugiyut.json - nothing is generated at
+    send time. Title rotates separately so the same letter looks fresh."""
     import json
     is_motzaei_shabbat = (
         datetime.datetime.now(datetime.timezone.utc).weekday() == 5)
@@ -28,11 +50,14 @@ def build_zugiyut_message():
         bank = json.load(f)
     day_of_year = datetime.date.today().timetuple().tm_yday
     entry = bank[day_of_year % len(bank)]
-    return (f"{prefix}💍 *מסר יומי לזוגיות — מאגרות הקודש של הרבי*\n\n"
-            f"✍️ הרבי כותב:\n\"{entry['quote']}\"\n"
+    title = ZUGIYUT_TITLES[day_of_year % len(ZUGIYUT_TITLES)]
+    intro = ZUGIYUT_INTROS.get(entry.get("to"), "✍️ הרבי כותב:")
+    closer = ZUGIYUT_CLOSERS[entry.get("kind", "task")]
+    return (f"{prefix}{title}\n\n"
+            f"{intro}\n\"{entry['quote']}\"\n"
             f"_(אגרות קודש {entry['volume']}, אגרת {entry['letter']})_\n\n"
             f"💡 *בפשטות:* {entry['explain']}\n\n"
-            f"✅ *משימה להיום:* {entry['task']}")
+            f"{closer} {entry['task']}")
 
 
 def get_phones():
